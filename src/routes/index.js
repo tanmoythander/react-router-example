@@ -1,6 +1,51 @@
-import { Routes, Route, Link, Navigate, Outlet } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 
 import ClockService from './../services/Clock'
+
+import Home from './PublicApp/Home'
+import About from './PublicApp/About'
+import NotFound from './PublicApp/404'
+
+import AdminSignIn from './PublicApp/Auth/AdminSignIn'
+import UserSignIn from './PublicApp/Auth/UserSignIn'
+
+import AdminDashboard from './AdminApp/Dashboard'
+import AdminSettings from './AdminApp/Settings'
+
+import UserDashboard from './UserApp/Dashboard'
+import UserSettings from './UserApp/Settings'
+
+function AuthRedirectRoute () {
+	const adminToken = localStorage.getItem('adminKey')
+	const adminTokenExp = parseInt(localStorage.getItem('adminKeyExp'))
+	const superAdminToken = localStorage.getItem('superAdminKey')
+	const superAdminTokenExp = parseInt(
+		localStorage.getItem('superAdminKeyExp')
+	)
+	const userToken = localStorage.getItem('userKey')
+	const userTokenExp = parseInt(localStorage.getItem('userKeyExp'))
+
+	let redirectRoute = undefined
+	if (adminToken) {
+		if (adminTokenExp > ClockService.now()) {
+			// admin verified
+			redirectRoute = '/admin'
+		}
+	} else if (superAdminToken) {
+		if (superAdminTokenExp > ClockService.now()) {
+			// super admin verified
+			redirectRoute = '/admin'
+		}
+	} else if (userToken && userTokenExp > ClockService.now()) {
+		redirectRoute = '/user'
+	}
+
+	if (redirectRoute) {
+		return <Navigate to={redirectRoute} />
+	} else {
+		return <Outlet />
+	}
+}
 
 function AdminProtectedRoute () {
 	const adminToken = localStorage.getItem('adminKey')
@@ -44,50 +89,37 @@ function UserProtectedRoute () {
 	)
 }
 
-function Home() {
-	return <div>
-		<h2>Home</h2>
-		<Link to='about'>About</Link>
-	</div>
-}
-
-function About() {
-	return <div>
-		<h2>
-			About
-		</h2>
-		<Link to='/'>Home</Link>
-	</div>
-}
-
 function App() {
-
 	return (
 		<Routes>
 			<Route path='/' element={<Home />} />
 			<Route path='about' element={<About />} />
 
 			{/* Authentication Routes */}
-			<Route path='auth'>
+			<Route path='auth' element={<AuthRedirectRoute />}>
 				<Route path='admin'>
-					<Route path='signin' element={<h1>Admin Sign In</h1>} />
+					<Route path='signin' element={<AdminSignIn />} />
 				</Route>
 				<Route path='user'>
-					<Route path='signin' element={<h1>User Sign In</h1>} />
+					<Route path='signin' element={<UserSignIn />} />
 				</Route>
 			</Route>
 
 			{/* Admin Routes */}
 			<Route path='admin' element={<AdminProtectedRoute />}>
-				<Route path='' element={<h1>Admin Dashboard</h1>} />
-				<Route path='about' element={<h1>Admin About</h1>} />
+				<Route path='' element={<AdminDashboard />} />
+				<Route path='settings' element={<AdminSettings />} />
 			</Route>
 
 			{/* User Routes */}
 			<Route path='user' element={<UserProtectedRoute />}>
-				<Route path='' element={<h1>User Dashboard</h1>} />
-				<Route path='about' element={<h1>User About</h1>} />
+				<Route path='' element={<UserDashboard />} />
+				<Route path='settings' element={<UserSettings />} />
 			</Route>
+
+			{/* 404 */}
+			<Route path='404' element={<NotFound />} />
+			<Route path='*' element={<NotFound />} />
 		</Routes>
 	);
 }
