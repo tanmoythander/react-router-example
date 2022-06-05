@@ -1,6 +1,6 @@
 import { Routes, Route, Link, Navigate, Outlet } from 'react-router-dom'
 
-import ClockService from './services/Clock'
+import ClockService from './../services/Clock'
 
 function AdminProtectedRoute () {
 	const adminToken = localStorage.getItem('adminKey')
@@ -66,11 +66,27 @@ function App() {
 		<Routes>
 			<Route path='/' element={<Home />} />
 			<Route path='about' element={<About />} />
-			<Route path='admin' element={<AdminProtectedRoute />}>
-				
-			</Route>
-			<Route path='user' element={<UserProtectedRoute />}>
 
+			{/* Authentication Routes */}
+			<Route path='auth'>
+				<Route path='admin'>
+					<Route path='signin' element={<h1>Admin Sign In</h1>} />
+				</Route>
+				<Route path='user'>
+					<Route path='signin' element={<h1>User Sign In</h1>} />
+				</Route>
+			</Route>
+
+			{/* Admin Routes */}
+			<Route path='admin' element={<AdminProtectedRoute />}>
+				<Route path='' element={<h1>Admin Dashboard</h1>} />
+				<Route path='about' element={<h1>Admin About</h1>} />
+			</Route>
+
+			{/* User Routes */}
+			<Route path='user' element={<UserProtectedRoute />}>
+				<Route path='' element={<h1>User Dashboard</h1>} />
+				<Route path='about' element={<h1>User About</h1>} />
 			</Route>
 		</Routes>
 	);
