@@ -39,9 +39,11 @@ function shortDate(millis) {
 	return dd + '/' + mm + '/' + yyyy
 }
 
-export default {
+const ClockService = {
 	now,
 	today,
 	thatDay,
 	shortDate
 }
+
+export default ClockService
